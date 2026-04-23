@@ -52,19 +52,6 @@ jobs:
               -o "$JAR"
           fi
 
-      # ── 5. Generate a debug keystore (for debug builds / PRs) ─────────────────
-      - name: Generate debug keystore
-        run: |
-          keytool -genkey -v \
-            -keystore app/debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
-
       # ── 6. Decode release keystore (only on tag pushes) ───────────────────────
       - name: Decode release keystore
         if: startsWith(github.ref, 'refs/tags/v')
@@ -148,18 +135,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-
-      - name: Generate debug keystore
-        run: |
-          keytool -genkey -v \
-            -keystore app/debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
 
       - name: Grant execute permission
         run: chmod +x gradlew
