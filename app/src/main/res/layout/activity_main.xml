@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_dark"
     android:fillViewport="true">
 
     <LinearLayout
@@ -80,7 +79,7 @@
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="IN" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace"/>
+                        android:text="IN" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="monospace"/>
                     <TextView android:id="@+id/statIn" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="0" android:textColor="@color/accent_cyan" android:textSize="22sp" android:textStyle="bold" android:fontFamily="monospace"/>
                 </LinearLayout>
@@ -88,7 +87,7 @@
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="OUT" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace"/>
+                        android:text="OUT" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="monospace"/>
                     <TextView android:id="@+id/statOut" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="0" android:textColor="@color/accent_green" android:textSize="22sp" android:textStyle="bold" android:fontFamily="monospace"/>
                 </LinearLayout>
@@ -96,7 +95,7 @@
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="DROPPED" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace"/>
+                        android:text="DROPPED" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="monospace"/>
                     <TextView android:id="@+id/statDrop" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="0" android:textColor="@color/accent_red" android:textSize="22sp" android:textStyle="bold" android:fontFamily="monospace"/>
                 </LinearLayout>

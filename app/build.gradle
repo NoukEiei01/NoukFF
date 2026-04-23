@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace 'com.fakelag.app'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.fakelag.app"
         minSdk 26
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0.0"
 
@@ -25,8 +25,6 @@ android {
                 keyPassword System.getenv("KEY_PASSWORD") ?: "android"
             }
         }
-        // debug ใช้ default Android debug keystore (~/.android/debug.keystore)
-        // ไม่ต้อง config เอง — Android Gradle Plugin จัดการให้อัตโนมัติ
     }
 
     buildTypes {
@@ -38,7 +36,6 @@ android {
         }
         debug {
             applicationIdSuffix ".debug"
-            // ไม่ระบุ signingConfig → ใช้ default debug keystore อัตโนมัติ
         }
     }
 
@@ -50,12 +47,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    lint {
+        // Warnings ที่ไม่กระทบการทำงาน ข้ามได้
+        disable 'SetTextI18n', 'HardcodedText'
+        // Icon warnings — icon เป็น placeholder ยอมรับได้
+        disable 'IconLauncherShape', 'IconDuplicates', 'MonochromeLauncherIcon'
+    }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.11.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-service:2.7.0'
-    implementation 'androidx.preference:preference:1.2.1'
+    // Updated to latest versions per lint GradleDependency warnings
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.lifecycle:lifecycle-service:2.9.0'
 }
