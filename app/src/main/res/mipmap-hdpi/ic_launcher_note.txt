@@ -1,2 +1,0 @@
-This file should be replaced with a real 48x48 PNG launcher icon.
-For CI builds, Android Studio generates this automatically.
