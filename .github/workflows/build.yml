@@ -44,8 +44,19 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant Gradle execute permission
-        run: chmod +x gradlew
+      - name: Setup Gradle Wrapper
+        run: |
+          # Download gradle-wrapper.jar if missing (not committed to repo)
+          JAR=gradle/wrapper/gradle-wrapper.jar
+          if [ ! -f "$JAR" ] || [ ! -s "$JAR" ]; then
+            echo "Downloading gradle-wrapper.jar..."
+            curl -sL "https://services.gradle.org/distributions/gradle-8.0-bin.zip" -o /tmp/gradle.zip
+            unzip -p /tmp/gradle.zip "*/lib/gradle-wrapper-*.jar" > "$JAR" 2>/dev/null || \
+            unzip -j /tmp/gradle.zip "gradle-8.0/lib/gradle-wrapper-8.0.jar" -d gradle/wrapper/ 2>/dev/null && \
+            mv gradle/wrapper/gradle-wrapper-8.0.jar "$JAR" 2>/dev/null || true
+          fi
+          chmod +x gradlew
+          ls -lh gradle/wrapper/
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
@@ -83,8 +94,16 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant Gradle execute permission
-        run: chmod +x gradlew
+      - name: Setup Gradle Wrapper
+        run: |
+          JAR=gradle/wrapper/gradle-wrapper.jar
+          if [ ! -f "$JAR" ] || [ ! -s "$JAR" ]; then
+            echo "Downloading gradle-wrapper.jar..."
+            curl -sL "https://services.gradle.org/distributions/gradle-8.0-bin.zip" -o /tmp/gradle.zip
+            unzip -p /tmp/gradle.zip "*/lib/gradle-wrapper-*.jar" > "$JAR" 2>/dev/null || true
+          fi
+          chmod +x gradlew
+          ls -lh gradle/wrapper/
 
       - name: Decode Keystore (if secret exists)
         run: |
