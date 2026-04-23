@@ -112,10 +112,15 @@ jobs:
 
       # Decode keystore from base64 secret
       - name: Decode Keystore
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
-          echo "Keystore decoded successfully"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > app/keystore.jks
+            echo "Keystore decoded successfully"
+          else
+            echo "No keystore secret found, building unsigned release"
+          fi
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
       - name: Build Release APK
         env:
@@ -127,11 +132,14 @@ jobs:
           ./gradlew assembleRelease --stacktrace
 
       - name: Verify APK signature
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
         run: |
           APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
           echo "APK path: $APK_PATH"
-          $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose "$APK_PATH"
+          if [ -f "app/keystore.jks" ]; then
+            $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose "$APK_PATH"
+          else
+            echo "Skipping signature verification (unsigned build)"
+          fi
 
       - name: Get APK info
         run: |
