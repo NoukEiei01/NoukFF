@@ -1,4 +1,4 @@
-name: Build FakeLag APK
+name: Build & Release VPN APK
 
 on:
   push:
@@ -8,152 +8,220 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type (debug/release)'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
+
+env:
+  JAVA_VERSION: '17'
+  ANDROID_API_LEVEL: '34'
 
 jobs:
-  build:
-    name: Build APK
+  # ─────────────────────────────────────────────
+  # Job 1: Run unit tests
+  # ─────────────────────────────────────────────
+  test:
+    name: 🧪 Unit Tests
     runs-on: ubuntu-latest
-
     steps:
-      # ── 1. Checkout ───────────────────────────────────────────────────────────
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # ── 2. JDK 17 ────────────────────────────────────────────────────────────
-      - name: Set up JDK 17
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
           cache: gradle
 
-      # ── 3. Gradle cache ──────────────────────────────────────────────────────
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      # ── 4. Make gradlew executable ────────────────────────────────────────────
-      - name: Grant execute permission for gradlew
+      - name: Grant Gradle execute permission
         run: chmod +x gradlew
 
-      # ── 4b. Download gradle-wrapper.jar if missing ───────────────────────────
-      - name: Download gradle-wrapper.jar
-        run: |
-          JAR=gradle/wrapper/gradle-wrapper.jar
-          if [ ! -f "$JAR" ]; then
-            echo "Downloading gradle-wrapper.jar..."
-            curl -sL \
-              "https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
-              -o "$JAR"
-          fi
+      - name: Run unit tests
+        run: ./gradlew test --stacktrace
 
-      # ── 6. Decode release keystore (only on tag pushes) ───────────────────────
-      - name: Decode release keystore
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          mkdir -p build
-          echo "$KEYSTORE_BASE64" | base64 --decode > build/release.keystore
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: app/build/reports/tests/
 
-      # ── 7. Build Debug APK ───────────────────────────────────────────────────
+  # ─────────────────────────────────────────────
+  # Job 2: Build Debug APK
+  # ─────────────────────────────────────────────
+  build-debug:
+    name: 🔨 Build Debug APK
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'debug')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant Gradle execute permission
+        run: chmod +x gradlew
+
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --stacktrace
 
-      # ── 8. Build Release APK (tags only) ─────────────────────────────────────
-      - name: Build Release APK
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon
-
-      # ── 9. Upload Debug APK artifact ─────────────────────────────────────────
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: FakeLag-debug-${{ github.sha }}
-          path: app/build/outputs/apk/debug/*.apk
-          retention-days: 30
+          name: vpn-debug-${{ github.sha }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
 
-      # ── 10. Upload Release APK artifact (tags only) ───────────────────────────
-      - name: Upload Release APK
-        if: startsWith(github.ref, 'refs/tags/v')
+  # ─────────────────────────────────────────────
+  # Job 3: Build & Sign Release APK
+  # ─────────────────────────────────────────────
+  build-release:
+    name: 🚀 Build & Sign Release APK
+    runs-on: ubuntu-latest
+    needs: test
+    if: |
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release') ||
+      (github.ref == 'refs/heads/main' && github.event_name == 'push')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant Gradle execute permission
+        run: chmod +x gradlew
+
+      # Decode keystore from base64 secret
+      - name: Decode Keystore
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
+          echo "Keystore decoded successfully"
+
+      - name: Build Release APK
+        env:
+          KEYSTORE_FILE: keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          ./gradlew assembleRelease --stacktrace
+
+      - name: Verify APK signature
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+          echo "APK path: $APK_PATH"
+          $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose "$APK_PATH"
+
+      - name: Get APK info
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+          APK_SIZE=$(du -sh "$APK_PATH" | cut -f1)
+          echo "APK_SIZE=$APK_SIZE" >> $GITHUB_ENV
+          echo "Build complete - Size: $APK_SIZE"
+
+      - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FakeLag-release-${{ github.ref_name }}
-          path: app/build/outputs/apk/release/*.apk
-          retention-days: 90
+          name: vpn-release-${{ github.sha }}
+          path: app/build/outputs/apk/release/
+          retention-days: 30
 
-      # ── 11. Create GitHub Release (tags only) ─────────────────────────────────
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+  # ─────────────────────────────────────────────
+  # Job 4: Create GitHub Release (on tag push)
+  # ─────────────────────────────────────────────
+  release:
+    name: 📦 GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-release
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Release APK
+        uses: actions/download-artifact@v4
         with:
-          name: "FakeLag ${{ github.ref_name }}"
-          body: |
-            ## FakeLag ${{ github.ref_name }}
+          name: vpn-release-${{ github.sha }}
+          path: release-apk/
 
-            ### What's new
-            - See commit history for changes
+      - name: Extract version from tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: "VPN App ${{ env.VERSION }}"
+          body: |
+            ## VPN App ${{ env.VERSION }}
+
+            ### What's included
+            - Android VPN App (Non-root)
+            - Floating overlay widget
+            - Multi-server support
+            - Kill switch
+            - Auto-connect on boot
 
             ### Installation
-            1. Download `FakeLag-release.apk` below
-            2. Enable **Install unknown apps** in Android Settings
+            1. Download `app-release.apk`
+            2. Enable "Install from unknown sources" on your Android device
             3. Install the APK
-            4. Grant **VPN permission** when prompted (no root needed)
+            4. Grant VPN & overlay permissions when prompted
 
-            ### Features
-            - 🕹️ Adjustable delay (0–2000 ms), jitter (±500 ms), packet drop (0–90%)
-            - ⚡ Live config update without restart
-            - 🔲 Quick Settings tile for instant toggle
-            - 📊 Real-time packet stats
+            ### Requirements
+            - Android 6.0 (API 23) or higher
+            - No root required
+
           files: |
-            app/build/outputs/apk/release/*.apk
+            release-apk/*.apk
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ── Lint job ────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────
+  # Job 5: Code quality check
+  # ─────────────────────────────────────────────
   lint:
-    name: Lint
+    name: 🔍 Lint Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
           cache: gradle
-
-      - name: Grant execute permission
-        run: chmod +x gradlew
-
-      - name: Download gradle-wrapper.jar
-        run: |
-          JAR=gradle/wrapper/gradle-wrapper.jar
-          if [ ! -f "$JAR" ]; then
-            curl -sL \
-              "https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
-              -o "$JAR"
-          fi
-
+      - run: chmod +x gradlew
       - name: Run Lint
-        run: ./gradlew lintDebug --no-daemon
-
-      - name: Upload Lint report
+        run: ./gradlew lint
+      - name: Upload Lint Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lint-report
-          path: app/build/reports/lint-results-debug.html
+          name: lint-results
+          path: app/build/reports/lint-results*.html

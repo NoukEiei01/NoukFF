@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Connection">
+        <SwitchPreferenceCompat
+            android:key="auto_connect_boot"
+            android:title="Auto-connect on boot"
+            android:summary="Reconnect VPN when device restarts"
+            android:defaultValue="false" />
+
+        <SwitchPreferenceCompat
+            android:key="kill_switch"
+            android:title="Kill Switch"
+            android:summary="Block all traffic if VPN drops"
+            android:defaultValue="false" />
+
+        <ListPreference
+            android:key="vpn_protocol"
+            android:title="Protocol"
+            android:summary="%s"
+            android:entries="@array/protocol_entries"
+            android:entryValues="@array/protocol_values"
+            android:defaultValue="udp" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Interface">
+        <SwitchPreferenceCompat
+            android:key="floating_widget_enabled"
+            android:title="Floating Widget"
+            android:summary="Show floating VPN control overlay"
+            android:defaultValue="false" />
+
+        <SwitchPreferenceCompat
+            android:key="show_notifications"
+            android:title="Status Notifications"
+            android:summary="Show connection status in notification bar"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="DNS">
+        <ListPreference
+            android:key="dns_server"
+            android:title="DNS Server"
+            android:summary="%s"
+            android:entries="@array/dns_entries"
+            android:entryValues="@array/dns_values"
+            android:defaultValue="cloudflare" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

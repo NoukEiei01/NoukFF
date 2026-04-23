@@ -1,41 +1,41 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    namespace 'com.fakelag.app'
-    compileSdk 35
+    namespace 'com.vpnapp'
+    compileSdk 34
 
     defaultConfig {
-        applicationId "com.fakelag.app"
-        minSdk 26
-        targetSdk 35
+        applicationId "com.vpnapp"
+        minSdk 23
+        targetSdk 34
         versionCode 1
         versionName "1.0.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    signingConfigs {
-        release {
-            if (System.getenv("KEYSTORE_BASE64")) {
-                storeFile file("${rootProject.buildDir}/release.keystore")
-                storePassword System.getenv("KEY_STORE_PASSWORD") ?: "android"
-                keyAlias System.getenv("KEY_ALIAS") ?: "fakelag"
-                keyPassword System.getenv("KEY_PASSWORD") ?: "android"
-            }
-        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
-            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (System.getenv("KEYSTORE_FILE") != null) {
+                storeFile file(System.getenv("KEYSTORE_FILE") ?: "keystore.jks")
+                storePassword System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias System.getenv("KEY_ALIAS") ?: ""
+                keyPassword System.getenv("KEY_PASSWORD") ?: ""
+            }
         }
     }
 
@@ -44,26 +44,26 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    lint {
-        // Warnings ที่ไม่กระทบการทำงาน ข้ามได้
-        disable 'SetTextI18n', 'HardcodedText'
-        // Icon warnings — icon เป็น placeholder ยอมรับได้
-        disable 'IconLauncherShape', 'IconDuplicates', 'MonochromeLauncherIcon'
-        // targetSdk warning — 35 is current stable, AGP version mismatch
-        disable 'OldTargetApi'
-        // Obsolete lint check from lifecycle dependency — not our code
-        disable 'ObsoleteLintCustomCheck'
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
 dependencies {
-    // Updated to latest versions per lint GradleDependency warnings
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'com.google.android.material:material:1.13.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.lifecycle:lifecycle-service:2.10.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-service:2.7.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }

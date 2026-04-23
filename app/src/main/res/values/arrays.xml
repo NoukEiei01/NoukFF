@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="protocol_entries">
+        <item>UDP (Faster)</item>
+        <item>TCP (More reliable)</item>
+        <item>WireGuard</item>
+    </string-array>
+    <string-array name="protocol_values">
+        <item>udp</item>
+        <item>tcp</item>
+        <item>wireguard</item>
+    </string-array>
+
+    <string-array name="dns_entries">
+        <item>Cloudflare (1.1.1.1)</item>
+        <item>Google (8.8.8.8)</item>
+        <item>OpenDNS</item>
+    </string-array>
+    <string-array name="dns_values">
+        <item>cloudflare</item>
+        <item>google</item>
+        <item>opendns</item>
+    </string-array>
+</resources>

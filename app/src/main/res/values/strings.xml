@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FakeLag</string>
-    <string name="tile_label">FakeLag</string>
+    <string name="app_name">VPN App</string>
+    <string name="status_connected">Protected</string>
+    <string name="status_disconnected">Not Protected</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_disconnect">Disconnect</string>
+    <string name="pref_auto_connect">Auto-connect on boot</string>
+    <string name="pref_kill_switch">Kill switch</string>
+    <string name="pref_floating_widget">Floating widget</string>
+    <string name="pref_protocol">VPN Protocol</string>
 </resources>

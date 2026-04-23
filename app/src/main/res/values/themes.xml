@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.FakeLag" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/accent_green</item>
-        <item name="colorPrimaryDark">@color/bg_dark</item>
-        <item name="colorAccent">@color/accent_cyan</item>
+    <style name="Theme.VpnApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent_blue</item>
+        <item name="colorPrimaryVariant">@color/accent_purple</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/connected_green</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:colorBackground">@color/bg_dark</item>
+        <item name="colorSurface">@color/bg_card</item>
+        <item name="colorOnSurface">@color/white</item>
         <item name="android:windowBackground">@color/bg_dark</item>
-        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:statusBarColor">@color/bg_card</item>
         <item name="android:navigationBarColor">@color/bg_dark</item>
-    </style>
-
-    <style name="PresetButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textSize">10sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">monospace</item>
-        <item name="android:textColor">@color/accent_green</item>
-        <item name="strokeColor">@color/accent_green</item>
-        <item name="android:layout_marginEnd">4dp</item>
-        <item name="android:paddingStart">4dp</item>
-        <item name="android:paddingEnd">4dp</item>
-        <item name="android:backgroundTint">#00000000</item>
     </style>
 </resources>

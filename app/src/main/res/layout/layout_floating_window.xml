@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="#CC1A1A2E"
+    app:cardCornerRadius="40dp"
+    app:cardElevation="8dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:minWidth="72dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivFloatIcon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_vpn_key" />
+
+        <View
+            android:id="@+id/statusDot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/dot_disconnected" />
+
+        <TextView
+            android:id="@+id/tvFloatStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Tap"
+            android:textColor="#CCFFFFFF"
+            android:textSize="9sp" />
+
+        <TextView
+            android:id="@+id/tvFloatStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#88FFFFFF"
+            android:textSize="8sp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
