@@ -41,6 +41,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # ── 4b. Download gradle-wrapper.jar if missing ───────────────────────────
+      - name: Download gradle-wrapper.jar
+        run: |
+          JAR=gradle/wrapper/gradle-wrapper.jar
+          if [ ! -f "$JAR" ]; then
+            echo "Downloading gradle-wrapper.jar..."
+            curl -sL \
+              "https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
+              -o "$JAR"
+          fi
+
       # ── 5. Generate a debug keystore (for debug builds / PRs) ─────────────────
       - name: Generate debug keystore
         run: |
@@ -152,6 +163,15 @@ jobs:
 
       - name: Grant execute permission
         run: chmod +x gradlew
+
+      - name: Download gradle-wrapper.jar
+        run: |
+          JAR=gradle/wrapper/gradle-wrapper.jar
+          if [ ! -f "$JAR" ]; then
+            curl -sL \
+              "https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
+              -o "$JAR"
+          fi
 
       - name: Run Lint
         run: ./gradlew lintDebug --no-daemon
