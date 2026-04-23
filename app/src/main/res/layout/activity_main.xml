@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="FAKE LAG"
+                android:textColor="@color/accent_green"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.2"
+                android:fontFamily="monospace"/>
+
+            <!-- Status indicator -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status_pill"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <View
+                    android:id="@+id/statusDot"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/dot_red"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/statusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="INACTIVE"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Stats Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="@color/card_bg"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="IN" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/statIn" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="0" android:textColor="@color/accent_cyan" android:textSize="22sp" android:textStyle="bold" android:fontFamily="monospace"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="OUT" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/statOut" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="0" android:textColor="@color/accent_green" android:textSize="22sp" android:textStyle="bold" android:fontFamily="monospace"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="DROPPED" android:textColor="@color/text_secondary" android:textSize="10sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/statDrop" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="0" android:textColor="@color/accent_red" android:textSize="22sp" android:textStyle="bold" android:fontFamily="monospace"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Presets -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PRESETS"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:letterSpacing="0.15"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <Button android:id="@+id/btnPresetNone"
+                style="@style/PresetButton"
+                android:layout_width="0dp" android:layout_weight="1"
+                android:text="NONE"/>
+            <Button android:id="@+id/btnPresetLow"
+                style="@style/PresetButton"
+                android:layout_width="0dp" android:layout_weight="1"
+                android:text="LOW"/>
+            <Button android:id="@+id/btnPresetMed"
+                style="@style/PresetButton"
+                android:layout_width="0dp" android:layout_weight="1"
+                android:text="MED"/>
+            <Button android:id="@+id/btnPresetHigh"
+                style="@style/PresetButton"
+                android:layout_width="0dp" android:layout_weight="1"
+                android:text="HIGH"/>
+            <Button android:id="@+id/btnPresetRage"
+                style="@style/PresetButton"
+                android:layout_width="0dp" android:layout_weight="1"
+                android:text="RAGE"
+                android:backgroundTint="@color/accent_red"/>
+        </LinearLayout>
+
+        <!-- Controls Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="@color/card_bg"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Delay -->
+                <TextView android:id="@+id/labelDelay"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Delay: 80 ms"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="6dp"/>
+                <SeekBar android:id="@+id/seekDelay"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:progressTint="@color/accent_cyan"
+                    android:thumbTint="@color/accent_cyan"/>
+
+                <!-- Jitter -->
+                <TextView android:id="@+id/labelJitter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Jitter: ±20 ms"
+                    android:textColor="@color/accent_yellow"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="6dp"/>
+                <SeekBar android:id="@+id/seekJitter"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:progressTint="@color/accent_yellow"
+                    android:thumbTint="@color/accent_yellow"/>
+
+                <!-- Drop -->
+                <TextView android:id="@+id/labelDrop"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Drop: 0%"
+                    android:textColor="@color/accent_red"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="6dp"/>
+                <SeekBar android:id="@+id/seekDrop"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:progressTint="@color/accent_red"
+                    android:thumbTint="@color/accent_red"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Toggle Button -->
+        <Button
+            android:id="@+id/btnToggle"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="▶  START LAG"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"
+            android:backgroundTint="@color/accent_green"
+            android:textColor="@color/bg_dark"/>
+
+        <!-- Footer note -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Uses Android VpnService — no root required.\nAll traffic is delayed locally on-device only."
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:gravity="center"/>
+
+    </LinearLayout>
+</ScrollView>

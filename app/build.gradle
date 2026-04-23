@@ -1,0 +1,66 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.fakelag.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.fakelag.app"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            if (System.getenv("KEYSTORE_BASE64")) {
+                // CI: keystore is decoded from env var
+                storeFile file("${rootProject.buildDir}/release.keystore")
+                storePassword System.getenv("KEY_STORE_PASSWORD") ?: "android"
+                keyAlias System.getenv("KEY_ALIAS") ?: "fakelag"
+                keyPassword System.getenv("KEY_PASSWORD") ?: "android"
+            }
+        }
+        debug {
+            storeFile file("${rootProject.projectDir}/debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-service:2.7.0'
+    implementation 'androidx.preference:preference:1.2.1'
+}

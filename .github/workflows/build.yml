@@ -1,0 +1,164 @@
+name: Build FakeLag APK
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────────────────────────
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # ── 2. JDK 17 ────────────────────────────────────────────────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      # ── 3. Gradle cache ──────────────────────────────────────────────────────
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      # ── 4. Make gradlew executable ────────────────────────────────────────────
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # ── 5. Generate a debug keystore (for debug builds / PRs) ─────────────────
+      - name: Generate debug keystore
+        run: |
+          keytool -genkey -v \
+            -keystore app/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      # ── 6. Decode release keystore (only on tag pushes) ───────────────────────
+      - name: Decode release keystore
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p build
+          echo "$KEYSTORE_BASE64" | base64 --decode > build/release.keystore
+
+      # ── 7. Build Debug APK ───────────────────────────────────────────────────
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      # ── 8. Build Release APK (tags only) ─────────────────────────────────────
+      - name: Build Release APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon
+
+      # ── 9. Upload Debug APK artifact ─────────────────────────────────────────
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FakeLag-debug-${{ github.sha }}
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+      # ── 10. Upload Release APK artifact (tags only) ───────────────────────────
+      - name: Upload Release APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: FakeLag-release-${{ github.ref_name }}
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 90
+
+      # ── 11. Create GitHub Release (tags only) ─────────────────────────────────
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "FakeLag ${{ github.ref_name }}"
+          body: |
+            ## FakeLag ${{ github.ref_name }}
+
+            ### What's new
+            - See commit history for changes
+
+            ### Installation
+            1. Download `FakeLag-release.apk` below
+            2. Enable **Install unknown apps** in Android Settings
+            3. Install the APK
+            4. Grant **VPN permission** when prompted (no root needed)
+
+            ### Features
+            - 🕹️ Adjustable delay (0–2000 ms), jitter (±500 ms), packet drop (0–90%)
+            - ⚡ Live config update without restart
+            - 🔲 Quick Settings tile for instant toggle
+            - 📊 Real-time packet stats
+          files: |
+            app/build/outputs/apk/release/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Lint job ────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Generate debug keystore
+        run: |
+          keytool -genkey -v \
+            -keystore app/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Run Lint
+        run: ./gradlew lintDebug --no-daemon
+
+      - name: Upload Lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html

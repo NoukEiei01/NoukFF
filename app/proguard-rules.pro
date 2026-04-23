@@ -1,0 +1,2 @@
+-keep class com.fakelag.app.service.** { *; }
+-keepclassmembers class * extends android.net.VpnService { *; }

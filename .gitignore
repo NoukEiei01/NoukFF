@@ -1,0 +1,19 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Keystore files — NEVER commit real keystores
+*.keystore
+*.jks
+!app/debug.keystore   # debug keystore can be committed (it's auto-generated anyway)
+
+# APK outputs
+*.apk
+*.aab
